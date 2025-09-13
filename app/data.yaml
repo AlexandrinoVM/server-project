@@ -1,21 +1,3 @@
 commands:
-- command: ls -la
-  description: "Lista os arquivos do diret\xF3rio atual"
-  name: list_files
-- command: df -h
-  description: Verifica uso de disco
-  name: check_disk
-- command: free -h
-  description: "Mostra uso de mem\xF3ria"
-  name: memory_usage
-- command: uptime
-  description: Tempo de atividade do sistema
-  name: system_uptime
-- command: whoami
-  description: "Mostra usu\xE1rio atual"
-  name: current_user
-- command: ip a
-  description: Mostra interfaces de rede e IPs
-  name: network_info
 servers:
  servers_id: 1

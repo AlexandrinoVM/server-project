@@ -45,7 +45,7 @@ class ConnectionManager:
         data = self.read_yaml()
         if item:
             return data.get(section, {}).get(item)
-        return data.get(section, {})
+        return data.get(section, {})   
 
     def register_server(self, data):
         existing = self.read_yaml()
