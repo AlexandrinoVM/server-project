@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server configs</title>
+   <style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #1e1e1e; /* fundo escuro */
+        color: #ecf0f1; /* texto claro */
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        color: #ecf0f1;
+        margin-bottom: 15:px;
+    }
+
+    form {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    input, select, button {
+        padding: 6px 10px;
+        margin-top: 2px;
+        border-radius: 5px;
+        border: 1px solid #555;
+        font-size: 14px;
+        background-color: #2c2c2c;
+        color: #ecf0f1;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: #3498db;
+    }
+
+    button {
+        cursor: pointer;
+        transition: background 0.3s, color 0.3s;
+    }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    .server-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 15px;
+        margin-bottom: 12px;
+        background-color: #2c2c2c; /* card escuro */
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+
+    .server-info {
+        font-weight: bold;
+        color: #ecf0f1;
+    }
+
+    .server-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .commands-select {
+        display: none;
+        min-width: 200px;
+        background-color: #2c2c2c;
+        color: #ecf0f1;
+    }
+
+    .btn-execute {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-execute:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-delete {
+        background-color: #e74c3c;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-delete:hover {
+        background-color: #c0392b;
+    }
+
+    .btn-toggle {
+        background-color: #95a5a6;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-toggle:hover {
+        background-color: #7f8c8d;
+    }
+
+    @media (max-width: 600px) {
+        .server-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .server-actions {
+            width: 100%;
+            justify-content: flex-start;
+        }
+    }
+    result-area {
+    width: 100%;
+    min-height: 120px;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #1e1e1e;
+    color: #ecf0f1;
+    border: 1px solid #555;
+    border-radius: 6px;
+    font-family: monospace;   
+    font-size: 14px;
+    resize: vertical; 
+    white-space: pre-wrap; 
+}
+       .section {
+            border: 1px solid #333;
+            border-radius: 8px;
+            margin: 10px 0;
+            background: #2a2a2a;
+        }
+
+        .section-header {
+            background: #333;
+            padding: 10px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            color: #f0f0f0;
+        }
+
+        .section-header:hover {
+            background: #444;
+        }
+
+        .section-content {
+            display: none;
+            padding: 10px;
+        }
+   </style>
+
+    <script>
+        function toggleCommands(id) {
+            const select = document.getElementById(id);
+            select.style.display = select.style.display === 'none' ? 'inline' : 'none';
+        }
+    </script>
+</head>
+<body>
+     <div class="section">
+        <div class="section-header">➕ New Server</div>
+        <div class="section-content">
+            <form action="/new_server" method="POST" style="display: flex; align-items: center; gap: 10px;">
+                <label>Name: <input name="name"></label>
+                <label>IP: <input name="ip"></label>
+                <label>Password: <input type="password" name="password"></label>
+                <label>Port: <input name="port"></label>
+                <button type="submit" style="padding: 6px 12px;">Criar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">➕ New Command</div>
+        <div class="section-content">
+            <form action="/new_command" method="POST" style="display: flex; align-items: center; gap: 10px;">
+                <label>Name: <input name="name"></label>
+                <label>Command: <input name="command"></label>
+                <label>Description: <input name="description"></label>
+                <button type="submit" style="padding: 6px 12px;">Criar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">🗑️ Delete Command</div>
+        <div class="section-content">
+            <form action="/delete_command" method="POST" style="display: flex; align-items: center; gap: 10px;">
+                <select name="command">
+                    {% for cmd in commands %}
+                    <option value="{{ cmd.name }}">{{ cmd.description }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" style="margin-left:5px; color:red;">Excluir</button>
+            </form>
+        </div>
+    </div>
+
+    <h2>Servers</h2>
+    <div class="section">
+    <div class="section-header">🖥️ Servers</div>
+    <div class="section-content">
+        <ul>
+            {% for server, data in servers.items() %}
+            <li class="server-item" style="margin-bottom:15px;">
+                <strong>{{ server }}</strong> machine:<strong>{{ data.name }}</strong>
+
+                <form class="exec-form" action="/exec" method="POST" style="display:inline; margin-left: 10px;">
+                    <input type="hidden" name="name" value="{{ server }}">
+                    <select name="connection_type">
+                        <option value="rsa" selected>RSA</option>
+                        <option value="password">Password</option>
+                    </select>
+
+                    <button type="button" onclick="toggleCommands('cmd-{{ loop.index }}')">Mostrar comandos</button>
+
+                    <select id="cmd-{{ loop.index }}" class="commands-select" name="command" style="display:none;">
+                        {% for cmd in commands %}
+                            <option value="{{ cmd.command }}">{{ cmd.description }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit">Executar</button>
+                </form>
+
+                <form action="/delete_server" method="POST" style="display:inline;">
+                    <input type="hidden" name="name" value="{{ server }}">
+                    <button type="submit" style="margin-left:5px; color:red;">Excluir</button>
+                </form>
+
+                <br>
+                <textarea class="result-area" rows="5" cols="80" readonly></textarea>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+  <script>
+        document.querySelectorAll('.section-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                content.style.display = content.style.display === 'block' ? 'none' : 'block';
+            });
+        });
+
+        document.querySelectorAll(".exec-form").forEach((form) => {
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+                const response = await fetch("/exec", {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await response.json();
+
+                const resultArea = form.parentElement.querySelector(".result-area");
+                resultArea.value = data.result || "Nenhum retorno do servidor";
+            });
+        });
+
+        function toggleCommands(id) {
+            const select = document.getElementById(id);
+            select.style.display = select.style.display === 'none' ? 'inline-block' : 'none';
+        }
+    </script>
+</body>
+</html>
+
